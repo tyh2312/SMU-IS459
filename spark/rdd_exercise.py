@@ -28,8 +28,11 @@ score_sheet_df.filter((score_sheet_df.Score > 52) & (score_sheet_df.Score <75)).
 
 score_filter_rdd = score_sheet_df.filter((score_sheet_df.Score > 52) & (score_sheet_df.Score < 75)).rdd
 
+filtered_rdd = score_filter_rdd.map(lambda x : (x[1], 1))
+filtered_rdd.collect()
+
 # Get the sum and count by reduce
-(sum, count) = score_rdd.reduce(lambda x, y: (x[0] + y[0], x[1] + y[1]))
+(sum, count) = filtered_rdd.reduce(lambda x, y: (x[0] + y[0], x[1] + y[1]))
 print('Average Score : ' + str(sum/count))
 
 # Load Parquet file into a data frame
