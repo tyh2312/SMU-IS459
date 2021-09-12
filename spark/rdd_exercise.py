@@ -36,8 +36,17 @@ filtered_rdd.collect()
 print('Average Score : ' + str(sum/count))
 
 # Load Parquet file into a data frame
-posts_df = spark.read.load('/user/yinghui/parquet-input/hardwarezone.parquet')
-posts_rdd = posts_df.rdd
+posts_df = spark.read.load('/user/yinghui/hardwarezone.parquet')
+
+# Create temp view 
+posts_df.createOrReplaceTempView("posts")
+
+sqlDF = spark.sql("SELECT * FROM posts")
+sqlDF.groupby(["author"]).agg(F.count("content")).show()
+
+num_post = sqlDF.count()
+
+posts_rdd = sqlDF.rdd
 
 # Project the author and content columns
 author_content_rdd = posts_rdd.map(lambda x: (len(x[2]), 1))
