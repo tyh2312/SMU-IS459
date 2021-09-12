@@ -4,7 +4,7 @@ from pyspark.sql import SparkSession
 spark = SparkSession.builder.appName('RDD Exercise').getOrCreate()
 
 # Load CSV file into a data frame
-score_sheet_df = spark.read.load('/user/zzj/score-sheet.csv', \
+score_sheet_df = spark.read.load('/user/yinghui/score-sheet.csv', \
     format='csv', sep=';', inferSchema='true', header='true')
 
 score_sheet_df.show()
@@ -17,18 +17,23 @@ score_sheet_rdd.first()
 score_rdd = score_sheet_rdd.map(lambda x: (x[1], 1))
 score_rdd.first()
 
+# Import Functions for sort
+from pyspark.spl import function as False
+
+# sort the dataframe
+score_sheet_df.sort(F.desc("Score")).show()
+
+#filter the min and max scores
+score_sheet_df.filter((score_sheet_df.Score > 52) & (score_sheet_df.Score <75)).show()
+
+score_filter_rdd = score_sheet_df.filter((score_sheet_df.Score > 52) & (score_sheet_df.Score < 75)).rdd
+
 # Get the sum and count by reduce
 (sum, count) = score_rdd.reduce(lambda x, y: (x[0] + y[0], x[1] + y[1]))
 print('Average Score : ' + str(sum/count))
 
 # Load Parquet file into a data frame
-posts_df = spark.read.load('/user/zzj/parquet-input/hardwarezone.parquet')
-
-posts_df.createOrReplaceTempView("posts")
-sqlDF = spark.sql("SELECT * FROM posts WHERE author='SG_Jimmy'")
-num_post = sqlDF.count()
-print('Jimmy has ' + str(num_post) + ' posts.')
-
+posts_df = spark.read.load('/user/yinghui/parquet-input/hardwarezone.parquet')
 posts_rdd = posts_df.rdd
 
 # Project the author and content columns
